@@ -22,30 +22,6 @@ def combine_prompts(fixed_sql_prompt, user_query):
     return fixed_sql_prompt + final_user_input
 
 
-def create_table_definition_prompt(df, table_name):
-    """
-    This function creates a table definition prompt from a given dataframe and table name.
-
-    Parameters:
-    df (DataFrame): The dataframe from which the table definition will be created.
-    table_name (str): The name of the table.
-
-    Returns:
-    prompt (str): A string containing the table definition.
-
-    """
-
-    prompt = """### sqlite table, with it properties:
-#
-# {}({})   
-#
-""".format(
-        table_name, ",".join(str(col) for col in df.columns)
-    )
-
-    return prompt
-
-
 def send_to_openai(prompt):
     """
     This function sends a prompt to OpenAI's completion API and returns the response.
@@ -60,8 +36,6 @@ def send_to_openai(prompt):
     endpoint = os.getenv("ENDPOINT")
     deployment = os.getenv("DEPLOYMENT_NAME")
     subscription_key = os.getenv("OPENAI_API_KEY")
-
-    print(subscription_key)
 
     # Initialize Azure OpenAI Service client with key-based authentication    
     client = AzureOpenAI(  
@@ -84,23 +58,11 @@ def send_to_openai(prompt):
         stop=None,  
         stream=False
     )
-
-    # print(completion.to_json())  
-    
+ 
     return completion.to_json()
 
 
 def user_query_input():
-    """
-    This function allows a user to input a query about the data.
-
-    Parameters:
-        None
-
-    Returns:
-        user_input (str): The query input by the user.
-
-    """
 
     return "List the names and total amounts of all customers who have made orders totaling more than $500."
 

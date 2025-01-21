@@ -6,7 +6,6 @@ import logging
 import pandas as pd
 import openai
 import db_utils
-import db
 import openai_utils
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
@@ -16,7 +15,7 @@ openai.api_key = os.environ.get('OPENAI_API_KEY')
 
 if __name__ == '__main__':
 
-    fixed_sql_prompt = db.get_table_schemas()
+    fixed_sql_prompt = db_utils.get_table_schemas()
     logging.info(f'Fixed SQL Prompt: {fixed_sql_prompt}')
 
     logging.info("Waiting for user input...")
@@ -28,10 +27,10 @@ if __name__ == '__main__':
     response_str = openai_utils.send_to_openai(final_prompt)
     response = json.loads(response_str)
     proposed_query = response['choices'][0]['message']['content']
-    print(proposed_query)
+    # print(proposed_query)
     proposed_query_postprocessed = db_utils.strip_Query(proposed_query)
     logging.info(f'Response obtained. Proposed sql query: {proposed_query_postprocessed}')
 
-    result = db.execute_query(proposed_query_postprocessed)
+    result = db_utils.execute_query(proposed_query_postprocessed)
     print("Query execution output:")
     print(result)
