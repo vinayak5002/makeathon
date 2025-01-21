@@ -1,4 +1,5 @@
 import mysql.connector
+from flask import jsonify
 from dotenv import load_dotenv
 import os
 
@@ -89,8 +90,8 @@ def execute_query(query):
         password=password,  # Your MySQL password
         database=database,  # This is a default schema that contains metadata
     )
-    
-       # Create a cursor object
+
+    # Create a cursor object
     cursor = connection.cursor()
 
     # Execute the query
@@ -102,34 +103,17 @@ def execute_query(query):
     # Get column names for the output formatting
     column_names = [desc[0] for desc in cursor.description]
 
-    # Calculate column width based on the longest entry (including column names)
-    column_widths = [max(len(str(item)), len(column)) for column, item in zip(column_names, zip(*output))] if output else [len(column) for column in column_names]
-    column_widths = [max(width, len(column)) for column, width in zip(column_names, column_widths)]
-
-    # Prepare the format for the table headers and rows
-    separator = "+" + "+".join(["-" * width for width in column_widths]) + "+"
-    format_string = "| " + " | ".join([f"{{:<{width}}}" for width in column_widths]) + " |"
-
-    # Prepare the formatted result
-    result = separator + "\n"
-    result += format_string.format(*column_names) + "\n"
-    result += separator + "\n"
-
-    # Format and print each row of the result
-    for row in output:
-        result += format_string.format(*row) + "\n"
-
-    result += separator  # Closing separator line
+    # Create a list of dictionaries where each dictionary represents a row with column names as keys
+    formatted_result = [dict(zip(column_names, row)) for row in output]
 
     # Close the cursor and connection
     cursor.close()
     connection.close()
 
-    # Return the formatted result
-    return result
+    # Return the formatted result as JSON
+    return formatted_result, column_names
 
 def strip_Query(query):
     cleaned_query = query.strip("```sql").strip("```").strip()
 
     return cleaned_query
-
