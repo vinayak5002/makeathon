@@ -25,7 +25,22 @@ Install dependencies
 pip install -r requirment.txt
 ```
 
-## Running Falsk Server
+## Configuration
+Create `.env` file with following configurations
+
+```env
+OPENAI_API_KEY=YOUR_OPEN_API_KEY
+DEPLOYMENT_NAME=YOUR_DEPLOYMENT
+ENDPOINT=YOUR_ENDPOINT
+LOCATION=YOUR_LOCATION
+
+HOST=CONNECTION_URL
+USER=USERNAME
+PASSWORD=PASSWORD
+DATABASE=SCHEMA_NAME
+```
+
+## Running Flask Server
 ```cmd
 python app.py
 ```
