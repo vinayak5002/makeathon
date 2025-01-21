@@ -83,35 +83,42 @@ def get_table_schemas():
 
 
 def execute_query(query):
-    # Establish connection to the MySQL database
-    connection = mysql.connector.connect(
-        host=host,  # E.g., 'localhost' or an IP address
-        user=user,  # Your MySQL username
-        password=password,  # Your MySQL password
-        database=database,  # This is a default schema that contains metadata
-    )
+    try:
+        # Establish connection to the MySQL database
+        connection = mysql.connector.connect(
+            host=host,  # E.g., 'localhost' or an IP address
+            user=user,  # Your MySQL username
+            password=password,  # Your MySQL password
+            database=database,  # This is a default schema that contains metadata
+        )
 
-    # Create a cursor object
-    cursor = connection.cursor()
+        # Create a cursor object
+        cursor = connection.cursor()
 
-    # Execute the query
-    cursor.execute(query)
+        # Execute the query
+        cursor.execute(query)
 
-    # Fetch all results
-    output = cursor.fetchall()
+        # Fetch all results
+        output = cursor.fetchall()
 
-    # Get column names for the output formatting
-    column_names = [desc[0] for desc in cursor.description]
+        # Get column names for the output formatting
+        column_names = [desc[0] for desc in cursor.description]
 
-    # Create a list of dictionaries where each dictionary represents a row with column names as keys
-    formatted_result = [dict(zip(column_names, row)) for row in output]
+        # Create a list of dictionaries where each dictionary represents a row with column names as keys
+        formatted_result = [dict(zip(column_names, row)) for row in output]
 
-    # Close the cursor and connection
-    cursor.close()
-    connection.close()
+        # Close the cursor and connection
+        cursor.close()
+        connection.close()
 
-    # Return the formatted result as JSON
-    return formatted_result, column_names
+        # Return the formatted result as JSON
+        return formatted_result, column_names
+    except mysql.connector.Error as e:  
+        # Reraise the database-related error to be caught in the calling function  
+        raise e  
+    except Exception as e:  
+        # Reraise any other errors to be caught in the calling function  
+        raise e  
 
 def strip_Query(query):
     cleaned_query = query.strip("```sql").strip("```").strip()

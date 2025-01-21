@@ -61,6 +61,17 @@ def send_to_openai(prompt):
  
     return completion.to_json()
 
+def get_prompt(user_input):
+    context_and_instructions = (
+    "Context: The user will provide an SQL query, and you need to explain what it does in simple terms. Be brief and avoid unnecessary elaboration.\n\n"
+    "Instructions for the model:\n"
+    "Your role is to explain SQL queries concisely and to the point. Provide only the explanation of the query's purpose and functionality. Avoid adding extra commentary, greetings, or unrelated information. Focus solely on delivering a clear understanding of the query. Donot add quotes in response\n\n"
+    "Example format for explanations:\n"
+    '"This query selects..."\n'
+    '"This query retrieves..."\n'
+    '"This query updates..."'
+)
+    return context_and_instructions+"\n\n"+user_input 
 
 def user_query_input():
 
