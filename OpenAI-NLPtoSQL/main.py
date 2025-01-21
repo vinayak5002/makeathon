@@ -6,6 +6,7 @@ import logging
 import pandas as pd
 import openai
 import db_utils
+import db
 import openai_utils
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
@@ -13,18 +14,9 @@ logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 # SET UP API KEY
 openai.api_key = os.environ.get('OPENAI_API_KEY')
 
-# Sales Dataset
-dataset = r"data/sales_data_sample.csv"
-
 if __name__ == '__main__':
-    logging.info("Loading Data...")
-    df = pd.read_csv(dataset)
-    logging.info(f"Data Format: {df.shape}")
 
-    logging.info("Converting to database...")
-    database = db_utils.dataframe_to_database(df, 'Results')
-
-    fixed_sql_prompt = openai_utils.create_table_definition_prompt(df, 'Results')
+    fixed_sql_prompt = db.get_table_schemas()
     logging.info(f'Fixed SQL Prompt: {fixed_sql_prompt}')
 
     logging.info("Waiting for user input...")
@@ -39,6 +31,7 @@ if __name__ == '__main__':
     print(proposed_query)
     proposed_query_postprocessed = db_utils.strip_Query(proposed_query)
     logging.info(f'Response obtained. Proposed sql query: {proposed_query_postprocessed}')
-    result = db_utils.execute_query(database, proposed_query_postprocessed)
-    logging.info(f'Result: {result}')
+
+    result = db.execute_query(proposed_query_postprocessed)
+    print("Query execution output:")
     print(result)

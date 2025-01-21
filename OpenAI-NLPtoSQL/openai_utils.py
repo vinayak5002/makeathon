@@ -102,7 +102,7 @@ def user_query_input():
 
     """
 
-    return "What is the total sales for each product line?"
+    return "List the names and total amounts of all customers who have made orders totaling more than $500."
 
     user_input = input("Tell OpenAi what you want to know about the data: ")
     return user_input
