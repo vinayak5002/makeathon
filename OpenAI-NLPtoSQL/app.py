@@ -4,18 +4,23 @@ import openai_utils
 import db_utils
 import json
 import mysql.connector
+from flask_cors import CORS, cross_origin
 
 logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 
 app = Flask(__name__)
 
+cors = CORS(app) # allow CORS for all domains on all routes.
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route("/")
+@cross_origin()
 def hello_name():
     return "Hello world"
 
 
 @app.route("/text-sql", methods=["GET"])
+@cross_origin()
 def text_sql():
     text = request.args.get("text")
     if not text:
@@ -42,6 +47,7 @@ def text_sql():
 
 
 @app.route("/execute-query", methods=["GET"])
+@cross_origin()
 def exec_query():
     query = request.args.get("query")
     if not query:
@@ -60,6 +66,7 @@ def exec_query():
 
 
 @app.route("/sql-text", methods=["GET"])
+@cross_origin()
 def sql_text():
     user_input = request.args.get("query")
     if not user_input:
