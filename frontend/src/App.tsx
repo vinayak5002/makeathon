@@ -24,7 +24,7 @@ function RepoHandler() {
       console.log("Current repo path in repoHandeller: ", data);
 
       navigate("/search");
-    
+
     } catch (error) {
 
       const axiosError = error as AxiosError;
@@ -53,19 +53,17 @@ function App() {
   return (
     <Provider store={store}>
       <StrictMode>
-        <div className="flex flex-col min-h-screen"> {/* Flex container with full height */}
-          <BrowserRouter>
-            <Navbar />
-            <main className="flex-grow"> {/* Main content area */}
-              <Routes>
-                <Route path="/" element={<RepoHandler />} />
-                <Route path="/search" element={<SearchPage />} />
-                <Route path="/select-repo" element={<SelectRepoPage />} />
-                <Route path="/history" element={<HistoryPage />} />
-              </Routes>
-            </main>
-            <Footer /> {/* Footer stays at the bottom */}
-          </BrowserRouter>
+        <div className="flex flex-col min-h-screen justify-between"> {/* Flex container with full height */}
+          <Navbar />
+          {/* <main className="flex-grow">  */}
+            {/* <Route path="/" element={<RepoHandler />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/select-repo" element={<SelectRepoPage />} />
+            <Route path="/history" element={<HistoryPage />} /> */}
+
+            <SearchPage />
+            {/* </main> */}
+          <Footer /> {/* Footer stays at the bottom */}
         </div>
       </StrictMode>
     </Provider>

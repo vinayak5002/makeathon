@@ -10,6 +10,16 @@ type Snippet = {
 
 }
 
+type ChatMessage = {
+  question: string;
+  answer: string;
+}
+
+export enum QueryType {
+  TEXT2SQL = "text2sql",
+  SQL2TEXT = "sql2text",
+}
+
 type UserRepoPath = {
   path: string;
   lastIndexed: string
@@ -20,4 +30,4 @@ type HistoryRecord = {
   timeStamp: Date;
 }
 
-export type { Snippet, UserRepoPath, HistoryRecord};
+export type { Snippet, UserRepoPath, HistoryRecord, ChatMessage};

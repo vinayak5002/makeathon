@@ -9,9 +9,9 @@ import { setLastIndexed } from "../store/path/pathSlice";
 
 
 const Navbar = () => {
-	const navigator = useNavigate();
+	// const navigator = useNavigate();
 	const [loading, setLoading] = useState(false);
-	const location = useLocation()
+	// const location = useLocation()
 	const isSelectRepoPath = location.pathname === "/select-repo"
 
 	const dispatch = useDispatch<AppDispatch>();
@@ -36,7 +36,7 @@ const Navbar = () => {
 	return (
 		<nav className="bg-primary py-4">
 			<div className="container mx-auto flex justify-between items-center">
-				<div onClick={() => { navigator("/") }} className="text-white font-bold text-4xl cursor-pointer"><span>S</span></div>
+				<div onClick={() => {}} className="text-white font-bold text-4xl cursor-pointer"><span>S</span></div>
 				<ul className="flex space-x-4 items-center">
 					<li>
 						<a

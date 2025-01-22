@@ -1,19 +1,26 @@
 import { useEffect, useRef, useState } from "react";
-import { Snippet } from "../types/types";
+import { ChatMessage, QueryType, Snippet } from "../types/types";
 import snipsApi from "../api/snipsApi";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Oval } from "react-loader-spinner";
 import SearchResult from "../components/SearchResult";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "../store/store";
+import { AppDispatch, RootState } from "../store/store";
 import { fetchCurrentRepo } from "../store/path/pathSlice";
+// import { useSelector } from "react-redux";
 
 const SearchPage = () => {
-  const [snips, setSnips] = useState<Snippet[]>([]);
+  // const [snips, setSnips] = useState<Snippet[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+
   const [query, setQuery] = useState<string>("");
+
+  const [queryType, setQueryType] = useState<QueryType>(QueryType.TEXT2SQL);
+
   const [isSearched, setIsSearched] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
@@ -30,10 +37,13 @@ const SearchPage = () => {
     setIsLoading(true);
 
     try {
+      //TODO: Implement API service
       const data = await snipsApi.searchSnips(query.toLowerCase())
       console.log(data);
-      const snippets: Snippet[] = data;
-      setSnips(snippets.slice(0, 5));
+
+      const message: ChatMessage = data;
+      setChatMessages([...chatMessages, message]);
+
       setIsSearched(true);
     } catch (err) {
       console.log(err);
@@ -48,9 +58,9 @@ const SearchPage = () => {
     fetchData();
   };
 
-  useEffect(() => {
-    dispatch(fetchCurrentRepo());
-  }, []);
+  // useEffect(() => {
+    // dispatch(fetchCurrentRepo());
+  // }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -68,7 +78,7 @@ const SearchPage = () => {
   }, []);
 
   return (
-    <div className="h-auto flex flex-col items-center justify-start"> {/* Added pt-10 for padding top */}
+    <div className={` ${isSearched ? "flex-grow" : ""} flex flex-col items-center justify-between`}> {/* Added pt-10 for padding top */}
       <ToastContainer
         position="bottom-right"
         autoClose={1000}
@@ -81,11 +91,21 @@ const SearchPage = () => {
         theme="dark"
       />
 
-      <div className={`flex ${isSearched ? "" : "flex-col mt-60"} justify-center items-center align-middle`}>
-        <h1 className={`${isSearched ? "text-4xl" : "text-7xl"} m-6`}>Snips</h1>
+      {chatMessages.length === 0 ? (
+        <></>
+      ) : (
+        <div className="flex flex-col items-center w-[80%] flex-grow-0">
+          {chatMessages.map((chat, index) => (
+            <SearchResult key={index} chatMessage={chat} index={index} />
+          ))}
+        </div>
+      )}
+
+      <div className={`flex ${isSearched ? "mt-auto" : "flex-col"} justify-center items-center align-middle`}>
+        <h1 className={`${isSearched ? "text-4xl" : "text-7xl"} m-6`}>Text-SQL</h1>
         <form
           onSubmit={handleSubmit}
-          className={`flex items-center ${isSearched ? 'mt-4 mb-10' : 'h-full justify-center'} mb-5`}
+          className={`flex items-center ${isSearched ? 'mt-auto mb-10' : 'h-full justify-center'} mb-5`}
         >
           <div className="flex items-center border rounded w-96 mr-2">
             <input
@@ -105,7 +125,7 @@ const SearchPage = () => {
             type="submit"
             className="p-2 bg-gray-950 text-white rounded border border-white"
           >
-            Search
+            Send  
           </button>
           <div className="ml-2">
             <Oval
@@ -135,15 +155,6 @@ const SearchPage = () => {
         </div>
       </div>
 
-      {snips.length === 0 ? (
-        <></>
-      ) : (
-        <div className="flex flex-col items-center w-[80%]">
-          {snips.map((snip, index) => (
-            <SearchResult key={index} snip={snip} index={index} />
-          ))}
-        </div>
-      )}
     </div>
   );
 };
