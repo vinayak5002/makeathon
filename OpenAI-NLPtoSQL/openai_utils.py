@@ -6,32 +6,11 @@ load_dotenv()  # Load environment variables from .env file
 
 
 def combine_prompts(fixed_sql_prompt, user_query):
-    """
-    This function combines two strings, a fixed SQL prompt and a user query, to create a final user input.
-
-    Parameters:
-    fixed_sql_prompt (str): A fixed SQL prompt.
-    user_query (str): A user query.
-
-    Returns:
-    final_user_input (str): The combined strings.
-
-    """
-
     final_user_input = f"### A query to answer: {user_query}"
     return fixed_sql_prompt + final_user_input
 
 
 def send_to_openai(prompt):
-    """
-    This function sends a prompt to OpenAI's completion API and returns the response.
-
-    Parameters:
-    prompt (str): The prompt to be sent to the OpenAI API.
-
-    Returns:
-    response (dict): The response from the OpenAI API.
-    """
 
     endpoint = os.getenv("ENDPOINT")
     deployment = os.getenv("DEPLOYMENT_NAME")
@@ -61,6 +40,17 @@ def send_to_openai(prompt):
  
     return completion.to_json()
 
+def get_prompt(user_input):
+    context_and_instructions = (
+    "Context: The user will provide an SQL query, and you need to explain what it does in simple terms. Be brief and avoid unnecessary elaboration.\n\n"
+    "Instructions for the model:\n"
+    "Your role is to explain SQL queries concisely and to the point. Provide only the explanation of the query's purpose and functionality. Avoid adding extra commentary, greetings, or unrelated information. Focus solely on delivering a clear understanding of the query. Donot add quotes in response\n\n"
+    "Example format for explanations:\n"
+    '"This query selects..."\n'
+    '"This query retrieves..."\n'
+    '"This query updates..."'
+)
+    return context_and_instructions+"\n\n"+user_input 
 
 def user_query_input():
 

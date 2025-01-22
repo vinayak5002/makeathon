@@ -104,69 +104,78 @@ def get_table_name(query):
     return None 
     
 
-def execute_query(query):
-    # Establish connection to the MySQL database
-    connection = mysql.connector.connect(
-        host=host,  # E.g., 'localhost' or an IP address
-        user=user,  # Your MySQL username
-        password=password,  # Your MySQL password
-        database=database,  # This is a default schema that contains metadata
-    )
+import mysql.connector
 
-    # Create a cursor object
-    cursor = connection.cursor()
+def execute_query(query, host, user, password, database):
+    try:
+        connection = mysql.connector.connect(
+            host=host,  # E.g., 'localhost' or an IP address
+            user=user,  # Your MySQL username
+            password=password,  # Your MySQL password
+            database=database,  # The schema that contains metadata
+        )
+        
+        cursor = connection.cursor()
+        
+        query_type = query.split()[0].lower()
+        
+        if query_type == "select":
+            cursor.execute(query)
+            
+            output = cursor.fetchall()
+            
+            if not output:
+                return [], [], ""
+            
+            column_names = [desc[0] for desc in cursor.description]
+            
+            formatted_result = [dict(zip(column_names, row)) for row in output]
+            
+            cursor.close()
+            connection.close()
+            
+            return formatted_result, column_names, "Success"
+        
+        elif query_type == "update" or query_type == "insert":
+            cursor.execute(query)
+            num_rows_affected = cursor.rowcount
+            
+            connection.commit()
+            
+            table_name = get_table_name(query)
+            
+            cursor.execute(f"SELECT * FROM {table_name}")
+            output = cursor.fetchall()
+            
+            column_names = [desc[0] for desc in cursor.description]
+            formatted_result = [dict(zip(column_names, row)) for row in output]
+            
+            cursor.close()
+            connection.close()
+            
+            return formatted_result, column_names, f"{num_rows_affected} no. of rows affected"
+        
+        elif query_type == "delete":
+            cursor.execute(query)
+            num_rows_affected = cursor.rowcount
+            
+            cursor.close()
+            connection.close()
+            
+            return [], [], f"{num_rows_affected} no. of rows affected"
+        
+        else:
+            return [], [], "Unable to execute query"
     
-    query_type = query.split()[0].lower()
-    
-    if query_type == "select":
-        cursor.execute(query)
-    
-        output = cursor.fetchall()
-    
-        if not output:
-            return [], [], ""
-    
-        column_names = [desc[0] for desc in cursor.description]
-    
-        formatted_result = [dict(zip(column_names, row)) for row in output]
-    
+    except mysql.connector.Error as e:
         cursor.close()
         connection.close()
+        raise e  
     
-        return formatted_result, column_names, "Success"
-    
-    elif query_type == "update" or query_type == "insert":
-        cursor.execute(query)
-        num_rows_affected = cursor.rowcount
-        
-        connection.commit()
-        
-        table_name = get_table_name(query) 
-
-        cursor.execute(f"SELECT * FROM {table_name}")
-        output = cursor.fetchall()
-        
-        column_names = [desc[0] for desc in cursor.description]
-        formatted_result = [dict(zip(column_names, row)) for row in output]
-        
+    except Exception as e:
         cursor.close()
         connection.close()
-        
-        return formatted_result, column_names, f"{num_rows_affected} no. of rows affected"
-    
-    elif query_type == "delete":
-        cursor.execute(query)
-        num_rows_affected = cursor.rowcount
-        
-        
-        cursor.close()
-        connection.close()
-        
-        return formatted_result, column_names, f"{num_rows_affected} no. of rows affected"
-    
-    else:
-        return [], [], "Unable to execute query"
-
+        raise e  
 
 def strip_Query(query):
     cleaned_query = query.strip("```sql").strip("```").strip()
