@@ -84,6 +84,43 @@ If no text is provided in the request, the API will respond with an error messag
 }
 ```
 
+### GET /sql-text
+
+
+#### Description:
+Generates a text description for the sql query provided by the user
+
+#### Request Parameters:
+ - sql (required): The sql query of which description is required
+
+```json
+{
+  "sql": "SELECT c.first_name, c.last_name, SUM(o.total_amount) AS total_spent FROM customers c JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.customer_id HAVING total_spent > 500;"
+}
+```
+
+#### Example Request:
+```
+/sql-text?query=SELECT c.first_name, c.last_name, SUM(o.total_amount) AS total_spent FROM customers c JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.customer_id HAVING total_spent > 500
+```
+#### Response:
+Status: 200 OK
+
+#### Content:
+```json
+{
+  "description": "This query retrieves the first name, last name, and total amount spent for each customer who has spent more than $500. It joins the 'customers' table with the 'orders' table based on the customer ID and groups the results by customer ID."
+}
+```
+
+#### Error Response:
+If no query is provided in the request, the API will respond with an error message.
+```json
+{
+  "error": "Query is required"
+}
+```
+
 ### GET /execute-query
 #### Description:
 Executes a SQL query against the database. The query is provided as a parameter in the URL.
@@ -113,6 +150,7 @@ Status: 200 OK
         {"first_name": "Jane", "last_name": "Smith", "total_spent": "799.98"},
         {"first_name": "Emily", "last_name": "Johnson", "total_spent": "599.97"},
     ],
+    "message": "Sucess"
 }
 ```
 

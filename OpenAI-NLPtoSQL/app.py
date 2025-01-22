@@ -47,7 +47,7 @@ def exec_query():
     if not query:
         return jsonify({"error": "Query is required"}), 400
     try:
-        
+
         data, columns, message = db_utils.execute_query(query)
         return jsonify({"data": data, "columns": columns, "message": message})
 
@@ -61,7 +61,7 @@ def exec_query():
 
 @app.route("/sql-text", methods=["GET"])
 def sql_text():
-    user_input = request.args.get("sql")
+    user_input = request.args.get("query")
     if not user_input:
         return jsonify({"error": "Query is required"}), 400
 
