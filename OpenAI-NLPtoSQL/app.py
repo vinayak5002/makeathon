@@ -46,9 +46,9 @@ def exec_query():
     if not query:
         return jsonify({"error": "Query is required"}), 400
 
-    result, columns = db_utils.execute_query(query)
+    data, columns, message = db_utils.execute_query(query)
 
-    return jsonify({"columns": columns, "data": result})
+    return jsonify({"data": data, "columns": columns, "message": message})
 
 if __name__ == "__main__":
-    app.run(port=5000)
+    app.run(port=5000, debug=True)
