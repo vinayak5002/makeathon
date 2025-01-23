@@ -5,6 +5,7 @@ import db_utils
 import json
 import mysql.connector
 from flask_cors import CORS, cross_origin
+import utils 
 
 logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
 
@@ -38,7 +39,7 @@ def text_sql():
     response = json.loads(response_str)
     proposed_query = response["choices"][0]["message"]["content"]
 
-    proposed_query_postprocessed = db_utils.strip_Query(proposed_query)
+    proposed_query_postprocessed = utils.strip_Query(proposed_query)
     logging.info(
         f"Response obtained. Proposed sql query: {proposed_query_postprocessed}"
     )

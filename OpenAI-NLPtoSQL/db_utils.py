@@ -1,6 +1,6 @@
 import mysql.connector
-from flask import jsonify
 from dotenv import load_dotenv
+import mysql.connector
 import os
 import re
 
@@ -11,16 +11,20 @@ user = os.getenv("USER")
 password = os.getenv("PASSWORD")
 database = os.getenv("DATABASE")
 
+# Database configuration  
+db_config = {  
+    'user': user,  
+    'password': password,  
+    'host': host,  
+    'database': database,  
+    'raise_on_warnings': True  
+}  
+
 
 def get_table_schemas():
 
     # Establish connection to the MySQL database
-    connection = mysql.connector.connect(
-        host=host,  # E.g., 'localhost' or an IP address
-        user=user,  # Your MySQL username
-        password=password,  # Your MySQL password
-        database=database,  # This is a default schema that contains metadata
-    )
+    connection = mysql.connector.connect(**db_config)
 
     # Create a cursor object
     cursor = connection.cursor()
@@ -104,14 +108,12 @@ def get_table_name(query):
     return None 
     
 
-import mysql.connector
-
-def execute_query(query):
+def execute_query(query,db_user='root',db_password='root'):
     try:
         connection = mysql.connector.connect(
             host=host,  # E.g., 'localhost' or an IP address
-            user=user,  # Your MySQL username
-            password=password,  # Your MySQL password
+            user=db_user,  # Your MySQL username
+            password=db_password,  # Your MySQL password
             database=database,  # The schema that contains metadata
         )
         
@@ -177,7 +179,57 @@ def execute_query(query):
         connection.close()
         raise e  
 
-def strip_Query(query):
-    cleaned_query = query.strip("```sql").strip("```").strip()
 
-    return cleaned_query
+def get_user_from_db(user_id):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, username, db_password, password FROM users WHERE id = %s", (user_id,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return user
+    except mysql.connector.Error as e:
+        cursor.close()
+        conn.close()
+        raise e  
+    
+    except Exception as e:
+        cursor.close()
+        conn.close()
+        raise e  
+
+
+# Function to create a new user in the database and create MySQL user
+def create_user_in_db(username, hashed_password, db_password):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO users (username, password, db_password) VALUES (%s, %s, %s)", 
+                       (username, hashed_password, db_password))
+        conn.commit()
+        user_id = cursor.lastrowid
+
+        cursor.execute("CREATE USER %s@'localhost' IDENTIFIED BY %s", (username, db_password))
+        grant_query = f"GRANT SELECT ON customer_db.* TO '{username}'@'localhost'"
+        cursor.execute(grant_query)
+        conn.commit()
+        return user_id  # Return the user_id
+    except mysql.connector.Error as err:
+        raise Exception(f"Database error: {err}")
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def get_user_by_username(username):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, username, db_password, password FROM users WHERE username = %s", (username,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return user
+    except mysql.connector.Error as err:
+        raise Exception(f"Database error: {err}")
