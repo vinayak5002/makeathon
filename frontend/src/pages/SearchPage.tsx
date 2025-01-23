@@ -1,17 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { ChatMessage, QueryType, Snippet } from "../types/types";
-import snipsApi from "../api/snipsApi";
+import { ChatMessage, QueryType } from "../types/types";
+import api from "../api/api";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Oval } from "react-loader-spinner";
 import SearchResult from "../components/SearchResult";
-import { useDispatch } from "react-redux";
-import { AppDispatch, RootState } from "../store/store";
-import { fetchCurrentRepo } from "../store/path/pathSlice";
-// import { useSelector } from "react-redux";
 
 const SearchPage = () => {
-  // const [snips, setSnips] = useState<Snippet[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   const [query, setQuery] = useState<string>("");
@@ -22,8 +17,6 @@ const SearchPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
-
-  const dispatch = useDispatch<AppDispatch>();
 
   const handleQuery = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
@@ -37,14 +30,26 @@ const SearchPage = () => {
     setIsLoading(true);
 
     try {
-      //TODO: Implement API service
-      const data = await snipsApi.searchSnips(query.toLowerCase())
-      console.log(data);
+      switch(queryType) {
+        case QueryType.TEXT2SQL:
+          const data = await api.sendText2SQLquery(query.toLowerCase())
+          console.log(data);
 
-      const message: ChatMessage = data;
-      setChatMessages([...chatMessages, message]);
+          const newChatMessage: ChatMessage = { question: query, answer: data.query, type: queryType };
+          setChatMessages([...chatMessages, newChatMessage]);
 
-      setIsSearched(true);
+          setIsSearched(true);
+          break;
+        case QueryType.SQL2TEXT:
+          const data2 = await api.sendSQL2Textquery(query.toLowerCase())
+          console.log(data2);
+
+          const newChatMessage2: ChatMessage = { question: query, answer: data2.description, type: queryType };
+          setChatMessages([...chatMessages, newChatMessage2]);
+
+          setIsSearched(true);
+          break;
+      }
     } catch (err) {
       console.log(err);
     }
@@ -59,7 +64,7 @@ const SearchPage = () => {
   };
 
   // useEffect(() => {
-    // dispatch(fetchCurrentRepo());
+  // dispatch(fetchCurrentRepo());
   // }, []);
 
   useEffect(() => {
@@ -76,6 +81,11 @@ const SearchPage = () => {
       window.removeEventListener('keydown', handleKeyDown); // Clean up the event listener
     };
   }, []);
+
+  const handleQueryTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    // Update the state with the selected value from the dropdown
+    setQueryType(event.target.value as QueryType);  // Type-casting to `QueryType` to match the enum
+  };
 
   return (
     <div className={` ${isSearched ? "flex-grow" : ""} flex flex-col items-center justify-between`}> {/* Added pt-10 for padding top */}
@@ -94,7 +104,7 @@ const SearchPage = () => {
       {chatMessages.length === 0 ? (
         <></>
       ) : (
-        <div className="flex flex-col items-center w-[80%] flex-grow-0">
+        <div className="flex flex-col-reverse items-center w-[80%] flex-grow overflow-y-auto h-[500px]">
           {chatMessages.map((chat, index) => (
             <SearchResult key={index} chatMessage={chat} index={index} />
           ))}
@@ -102,11 +112,23 @@ const SearchPage = () => {
       )}
 
       <div className={`flex ${isSearched ? "mt-auto" : "flex-col"} justify-center items-center align-middle`}>
-        <h1 className={`${isSearched ? "text-4xl" : "text-7xl"} m-6`}>Text-SQL</h1>
+        <h1 className={`${isSearched ? "hidden" : "text-7xl"} m-6`}>Text-SQL</h1>
         <form
           onSubmit={handleSubmit}
           className={`flex items-center ${isSearched ? 'mt-auto mb-10' : 'h-full justify-center'} mb-5`}
         >
+          <div className="flex items-center   w-32 mr-6">
+            <select
+              name="dropdown"
+              className="p-2 bg-gray-950 text-white rounded border border-white"
+              value={queryType} // assuming `selectedOption` is your state
+              onChange={handleQueryTypeChange} // assuming `handleSelectChange` is your function to handle option change
+            >
+              <option value={QueryType.TEXT2SQL}>Text to SQL</option>
+              <option value={QueryType.SQL2TEXT}>SQL to text</option>
+            </select>
+          </div>
+          
           <div className="flex items-center border rounded w-96 mr-2">
             <input
               ref={inputRef}
@@ -125,7 +147,7 @@ const SearchPage = () => {
             type="submit"
             className="p-2 bg-gray-950 text-white rounded border border-white"
           >
-            Send  
+            Send
           </button>
           <div className="ml-2">
             <Oval

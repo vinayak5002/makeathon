@@ -25,6 +25,7 @@ const CodeSnippet: React.FC<CodeSnippetProps> = ({ snip }) => {
                 customStyle={{ background: "transparent", flex: 1, fontWeight: 500, fontSize: 15 }}
                 showLineNumbers
                 wrapLines
+                wrapLongLines
             >
                 {snip}
             </SyntaxHighlighter>

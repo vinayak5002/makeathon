@@ -1,53 +1,10 @@
-import { StrictMode, useEffect } from "react";
+import { StrictMode } from "react";
 import { Provider } from "react-redux";
-import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import SearchPage from "./pages/SearchPage";
-import { store, AppDispatch } from "./store/store";
-import { useDispatch } from "react-redux";
-import { fetchCurrentRepo } from "./store/path/pathSlice";
-import SelectRepoPage from "./pages/SelectRepoPage";
+import { store } from "./store/store";
 import Navbar from "./sections/navBar";
 import Footer from "./sections/footer";
-import snipsApi from "./api/snipsApi";
-import { AxiosError } from "axios";
-import HistoryPage from "./pages/History";
 
-
-function RepoHandler() {
-  const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
-
-  const checkCurrentRepo = async () => {
-    try {
-      const data = await snipsApi.getCurrentRepo();
-
-      console.log("Current repo path in repoHandeller: ", data);
-
-      navigate("/search");
-
-    } catch (error) {
-
-      const axiosError = error as AxiosError;
-
-      dispatch(fetchCurrentRepo());
-
-      if (axiosError.response?.status === 400) {
-        console.log("Current repo path not set");
-        navigate("/select-repo");
-        return;
-      }
-
-      console.error("Error fetching current repo:", error);
-    }
-  };
-
-  useEffect(() => {
-    dispatch(fetchCurrentRepo());
-    checkCurrentRepo();
-  }, [dispatch]);
-
-  return null;
-}
 
 function App() {
   return (

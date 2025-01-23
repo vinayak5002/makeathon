@@ -13,6 +13,7 @@ type Snippet = {
 type ChatMessage = {
   question: string;
   answer: string;
+  type: QueryType;
 }
 
 export enum QueryType {
