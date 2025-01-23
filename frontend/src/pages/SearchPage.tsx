@@ -5,6 +5,9 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Oval } from "react-loader-spinner";
 import SearchResult from "../components/SearchResult";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import { useNavigate } from "react-router-dom";
 
 const SearchPage = () => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -13,6 +16,12 @@ const SearchPage = () => {
   const [isSearched, setIsSearched] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const navigate = useNavigate();
+
+  const userID: string = useSelector(
+    (state: RootState) => state.user.userID
+  );
 
   const handleQuery = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setQuery(e.target.value);
@@ -64,6 +73,14 @@ const SearchPage = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown); // Clean up the event listener
     };
+  }, []);
+
+  useEffect(() => {
+    console.log("User: ", userID);
+    if (userID === "") {
+      console.log("User not logged in");
+      navigate('/login')
+    }
   }, []);
 
   const handleQueryTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {

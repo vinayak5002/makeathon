@@ -1,11 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import pathReducer from './path/pathSlice';
-import chatReducer from './chat/chatSlice';
+import userReducer from './user/userSlice';
 
 export const store = configureStore({
   reducer: {
     currentRepoPath: pathReducer,
-    chat: chatReducer
+    user: userReducer
   },
   
   middleware: (getDefaultMiddleware) => getDefaultMiddleware()

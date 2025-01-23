@@ -63,7 +63,7 @@ def signup():
         user_id = db_utils.create_user_in_db(username, hashed_password, db_password,admin)
         user = User(str(user_id), username, db_password, hashed_password)
         login_user(user)
-        return jsonify({"message": "User created and logged in", "user_id": user_id}), 201
+        return jsonify({"message": "User created and logged in", "userId": str(user_id)}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -80,7 +80,7 @@ def login():
         if user and bcrypt.check_password_hash(user['password'], password):
             user_obj = User(str(user['id']), user['username'], user['db_password'], user['password'])
             login_user(user_obj)
-            return jsonify({"message": "Logged in successfully"}), 200
+            return jsonify({"message": "Logged in successfully", "userID": str(user['id'])}), 200
         return jsonify({"error": "Invalid credentials"}), 401
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -21,6 +21,11 @@ export enum QueryType {
   SQL2TEXT = "sql2text",
 }
 
+type LoginResponse = {
+  userID: string;
+  message: string;
+}
+
 type UserRepoPath = {
   path: string;
   lastIndexed: string
@@ -31,4 +36,4 @@ type HistoryRecord = {
   timeStamp: Date;
 }
 
-export type { Snippet, UserRepoPath, HistoryRecord, ChatMessage};
+export type { Snippet, UserRepoPath, HistoryRecord, ChatMessage, LoginResponse};
