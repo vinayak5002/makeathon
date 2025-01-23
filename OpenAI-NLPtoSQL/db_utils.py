@@ -201,7 +201,7 @@ def get_user_from_db(user_id):
 
 
 # Function to create a new user in the database and create MySQL user
-def create_user_in_db(username, hashed_password, db_password):
+def create_user_in_db(username, hashed_password, db_password,admin):
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
@@ -211,8 +211,12 @@ def create_user_in_db(username, hashed_password, db_password):
         user_id = cursor.lastrowid
 
         cursor.execute("CREATE USER %s@'localhost' IDENTIFIED BY %s", (username, db_password))
-        grant_query = f"GRANT SELECT ON customer_db.* TO '{username}'@'localhost'"
-        cursor.execute(grant_query)
+        if admin is None or admin != 'true':
+            grant_query = f"GRANT SELECT ON customer_db.* TO '{username}'@'localhost'"
+            cursor.execute(grant_query)
+        else:
+            grant_query = f"GRANT ALL PRIVILEGES ON `customer_db`.* TO {username}@`localhost`"
+            cursor.execute(grant_query)
         conn.commit()
         return user_id  # Return the user_id
     except mysql.connector.Error as err:

@@ -56,10 +56,11 @@ def signup():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
+    admin = data.get('admin')
     hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
     db_password = utils.generate_random_password(10)
     try:
-        user_id = db_utils.create_user_in_db(username, hashed_password, db_password)
+        user_id = db_utils.create_user_in_db(username, hashed_password, db_password,admin)
         user = User(str(user_id), username, db_password, hashed_password)
         login_user(user)
         return jsonify({"message": "User created and logged in", "user_id": user_id}), 201
