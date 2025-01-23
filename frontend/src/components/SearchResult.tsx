@@ -9,10 +9,9 @@ import { generateHtmlTable } from "../utils/utils";
 
 type SearchResultProps = {
 	chatMessage: ChatMessage;
-	index: number;
 };
 
-const SearchResult = ({ chatMessage, index }: SearchResultProps) => {
+const SearchResult = ({ chatMessage }: SearchResultProps) => {
 	const [isShowInfo, setIsShowInfo] = useState<boolean>(false);
 	const [isShowExec, setIsShowExec] = useState<boolean>(false);
 
@@ -75,13 +74,21 @@ const SearchResult = ({ chatMessage, index }: SearchResultProps) => {
 
 	useEffect(() => {
 		setIsShowInfo(false);
+		setIsShowExec(false);
 	}, [chatMessage]);
 
 	return (
-		<div key={index} className="mb-4 flex flex-row w-full justify-center items-stretch"> {/* Added items-stretch */}
-			<div className={`bg-secondary p-4 rounded-lg shadow-md ${isShowInfo ? 'w-1/3' : 'w-[60%]'} flex-shrink-0`}>
+		<div className="mb-4 flex flex-row w-full justify-center items-stretch"> {/* Added items-stretch */}
+			<div className={`bg-secondary p-4 rounded-lg shadow-md ${isShowInfo ? 'w-2/3' : 'w-[80%]'} flex-shrink-0`}>
 				<div className="w-auto mb-4 flex flex-row justify-between items-center">
-					<h3>Question: {chatMessage.question}</h3>
+					<h3>Question: {chatMessage.type === QueryType.TEXT2SQL && chatMessage.question}</h3>
+					{
+						chatMessage.type === QueryType.SQL2TEXT && (
+							<div className="bg-primary text-white p-2 rounded-lg">
+								{chatMessage.question}
+							</div>
+						)
+					}
 					<div className="flex flex-row">
 						<div className={`${chatMessage.type === QueryType.SQL2TEXT && "hidden"} p-2 bg-primary rounded-lg cursor-pointer mr-2`} onClick={toggleExecute}>
 							<FaPlayCircle size={20} />
@@ -91,13 +98,14 @@ const SearchResult = ({ chatMessage, index }: SearchResultProps) => {
 						</div>
 					</div>
 				</div>
-				<pre>
+				<div>
+					<h2>Response:</h2>
 					{
 						chatMessage.type === QueryType.TEXT2SQL ?
 							<CodeSnippet snip={chatMessage.answer} /> :
 							chatMessage.answer
 					}
-				</pre>
+				</div>
 
 				{
 					isShowExec && (
@@ -126,7 +134,7 @@ const SearchResult = ({ chatMessage, index }: SearchResultProps) => {
 
 			</div>
 			{isShowInfo && (
-				<div className="bg-secondary p-4 rounded-lg shadow-md w-2/3 h-auto ml-2 flex flex-col">
+				<div className="bg-secondary p-4 rounded-lg shadow-md w-1/3 h-auto ml-2 flex flex-col justify-center">
 					<p className="mb-2">Query explanation: </p>
 					{
 						isQuerDescLoading ?

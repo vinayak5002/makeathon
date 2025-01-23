@@ -8,17 +8,13 @@ import SearchResult from "../components/SearchResult";
 
 const SearchPage = () => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-
   const [query, setQuery] = useState<string>("");
-
   const [queryType, setQueryType] = useState<QueryType>(QueryType.TEXT2SQL);
-
   const [isSearched, setIsSearched] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
-  const handleQuery = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleQuery = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setQuery(e.target.value);
   };
 
@@ -26,34 +22,27 @@ const SearchPage = () => {
     if (query === "") return;
 
     console.log("Fetching data...");
-
     setIsLoading(true);
 
     try {
-      switch(queryType) {
+      let data;
+      switch (queryType) {
         case QueryType.TEXT2SQL:
-          const data = await api.sendText2SQLquery(query.toLowerCase())
-          console.log(data);
-
+          data = await api.sendText2SQLquery(query.toLowerCase());
           const newChatMessage: ChatMessage = { question: query, answer: data.query, type: queryType };
-          setChatMessages([...chatMessages, newChatMessage]);
-
-          setIsSearched(true);
+          setChatMessages([newChatMessage, ...chatMessages]);
           break;
         case QueryType.SQL2TEXT:
-          const data2 = await api.sendSQL2Textquery(query.toLowerCase())
-          console.log(data2);
-
-          const newChatMessage2: ChatMessage = { question: query, answer: data2.description, type: queryType };
-          setChatMessages([...chatMessages, newChatMessage2]);
-
-          setIsSearched(true);
+          data = await api.sendSQL2Textquery(query.toLowerCase());
+          const newChatMessage2: ChatMessage = { question: query, answer: data.description, type: queryType };
+          setChatMessages([newChatMessage2, ...chatMessages]);
           break;
       }
+      setIsSearched(true);
+      setQuery("");
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
-
     setIsLoading(false);
   };
 
@@ -62,10 +51,6 @@ const SearchPage = () => {
     console.log("Submitting...");
     fetchData();
   };
-
-  // useEffect(() => {
-  // dispatch(fetchCurrentRepo());
-  // }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -76,19 +61,17 @@ const SearchPage = () => {
     };
 
     window.addEventListener('keydown', handleKeyDown);
-
     return () => {
       window.removeEventListener('keydown', handleKeyDown); // Clean up the event listener
     };
   }, []);
 
   const handleQueryTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    // Update the state with the selected value from the dropdown
-    setQueryType(event.target.value as QueryType);  // Type-casting to `QueryType` to match the enum
+    setQueryType(event.target.value as QueryType);
   };
 
   return (
-    <div className={` ${isSearched ? "flex-grow" : ""} flex flex-col items-center justify-between`}> {/* Added pt-10 for padding top */}
+    <div className={` ${isSearched ? "flex-grow" : ""} flex flex-col items-center justify-between`}>
       <ToastContainer
         position="bottom-right"
         autoClose={1000}
@@ -101,12 +84,10 @@ const SearchPage = () => {
         theme="dark"
       />
 
-      {chatMessages.length === 0 ? (
-        <></>
-      ) : (
-        <div className="flex flex-col-reverse items-center w-[80%] flex-grow overflow-y-auto h-[500px]">
+      {chatMessages.length > 0 && (
+        <div className="flex flex-col-reverse items-center w-[80%] flex-grow overflow-y-auto h-[500px] no-scrollbar">
           {chatMessages.map((chat, index) => (
-            <SearchResult key={index} chatMessage={chat} index={index} />
+            <SearchResult key={index} chatMessage={chat} />
           ))}
         </div>
       )}
@@ -117,28 +98,39 @@ const SearchPage = () => {
           onSubmit={handleSubmit}
           className={`flex items-center ${isSearched ? 'mt-auto mb-10' : 'h-full justify-center'} mb-5`}
         >
-          <div className="flex items-center   w-32 mr-6">
+          <div className="flex items-center w-32 mr-6">
             <select
               name="dropdown"
               className="p-2 bg-gray-950 text-white rounded border border-white"
-              value={queryType} // assuming `selectedOption` is your state
-              onChange={handleQueryTypeChange} // assuming `handleSelectChange` is your function to handle option change
+              value={queryType}
+              onChange={handleQueryTypeChange}
             >
               <option value={QueryType.TEXT2SQL}>Text to SQL</option>
               <option value={QueryType.SQL2TEXT}>SQL to text</option>
             </select>
           </div>
-          
-          <div className="flex items-center border rounded w-96 mr-2">
-            <input
+
+          <div className="flex items-center border rounded w-[800px] mr-2">
+            <textarea
               ref={inputRef}
               autoComplete="off"
-              type="text"
               placeholder="Search..."
               name="query"
               value={query}
               onChange={handleQuery}
-              className="p-2 flex-grow border-none rounded-r"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && e.shiftKey) {
+                  // Allow shift+enter to create a new line
+                  return;
+                } else if (e.key === 'Enter') {
+                  // Prevent form submission on Enter key without Shift
+                  e.preventDefault();
+                  // Trigger form submission manually
+                  const form = e.currentTarget.closest('form');
+                  form?.requestSubmit(); // This will call handleSubmit()
+                }
+              }}
+              className="p-3 flex-grow border-none rounded-r resize-none"
             />
             <span className="p-2">/</span>
           </div>
@@ -176,7 +168,6 @@ const SearchPage = () => {
           />
         </div>
       </div>
-
     </div>
   );
 };
