@@ -1,38 +1,52 @@
-
-export function timeAgo(dateString: string): string {
-  
-  if(dateString == null) return "Never";
-
-  const now = new Date();
-  const pastDate = new Date(dateString);
-  const seconds = Math.floor((now.getTime() - pastDate.getTime()) / 1000);
-
-  // console.log("Last indexed x seconds ago: ", seconds);
-
-  if (Number.isNaN(seconds)) return "unknown";
-
-  let interval: number;
-
-  interval = Math.floor(seconds / 31536000); // years
-  if (interval > 1) return `${interval} years ago`;
-  if (interval === 1) return `1 year ago`;
-
-  interval = Math.floor(seconds / 2592000); // month
-  if (interval > 1) return `${interval} months ago`;
-  if (interval === 1) return `1 month ago`;
-
-  interval = Math.floor(seconds / 86400); // days
-  if (interval > 1) return `${interval} days ago`;
-  if (interval === 1) return `1 day ago`;
-
-  interval = Math.floor(seconds / 3600); // hours
-  if (interval > 1) return `${interval} hours ago`;
-  if (interval === 1) return `1 hour ago`;
-
-  interval = Math.floor(seconds / 60); // minutes
-  if (interval > 1) return `${interval} mins ago`;
-  if (interval === 1) return `1 min ago`;
-
-  return seconds < 10 ? "few seconds ago" : "Less than a minute ago";
+interface Row {
+  [key: string]: string;
 }
 
+interface Data {
+  columns: string[];
+  data: Row[];
+  message: string;
+}
+
+export function generateMarkdownTable(data: Data): string {
+  const { columns, data: rows } = data;
+
+  // Create the header row
+  let markdownTable = "| " + columns.join(" | ") + " |\n";
+
+  // Create the separator row (using `-` under each column)
+  markdownTable += "| " + columns.map(() => "---").join(" | ") + " |\n";
+
+  // Create the data rows
+  rows.forEach(row => {
+    markdownTable += "| " + columns.map(col => row[col]).join(" | ") + " |\n";
+  });
+
+  return markdownTable;
+}
+export function generateHtmlTable(data: Data): string {
+  const { columns, data: rows } = data;
+
+  let htmlTable = `<table class="min-w-full table-auto border-separate border-spacing-0 border border-gray-300">\n`;
+
+  htmlTable += "  <thead>\n    <tr class='bg-primary text-white'>\n"; // Updated to use primary color for header
+  columns.forEach(col => {
+    htmlTable += `      <th class="px-4 py-2 border border-gray-300 text-left text-sm font-medium">${col}</th>\n`;
+  });
+  htmlTable += "    </tr>\n  </thead>\n";
+
+  htmlTable += "  <tbody class='text-white'>\n";
+  rows.forEach(row => {
+    htmlTable += "    <tr class='bg-secondary'>\n";
+    columns.forEach(col => {
+      htmlTable += `      <td class="px-4 py-2 border border-gray-300 text-sm">${row[col]}</td>\n`;
+    });
+    htmlTable += "    </tr>\n";
+  });
+  htmlTable += "  </tbody>\n";
+
+  // End the table
+  htmlTable += "</table>";
+
+  return htmlTable;
+}

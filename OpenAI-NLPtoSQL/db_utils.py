@@ -106,7 +106,7 @@ def get_table_name(query):
 
 import mysql.connector
 
-def execute_query(query, host, user, password, database):
+def execute_query(query):
     try:
         connection = mysql.connector.connect(
             host=host,  # E.g., 'localhost' or an IP address

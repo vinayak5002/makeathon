@@ -13,12 +13,26 @@ async function sendText2SQLquery(query: string) {
   }
 }
 
-async function sendSQL2Textquery(query:string) {
+async function sendSQL2Textquery(query: string) {
   try {
     const response = await apiClient.get("/sql-text", {
       params: {
-        query:  query,
+        query: query,
       },
+    });
+    return response.data;
+  }
+  catch (error) {
+    throw error;
+  }
+}
+
+async function executeQuery(query: string) {
+  try {
+    const response = await apiClient.get("/execute-query", {
+      params: {
+        query: query,
+      }
     });
     return response.data;
   }
@@ -29,5 +43,6 @@ async function sendSQL2Textquery(query:string) {
 
 export default {
   sendText2SQLquery,
-  sendSQL2Textquery
+  sendSQL2Textquery,
+  executeQuery
 }
