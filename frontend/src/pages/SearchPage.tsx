@@ -171,7 +171,6 @@ const SearchPage = () => {
             />
           </div>
         </form>
-        <p className={isSearched ? 'hidden' : 'block'}>Search. Copy. Paste.</p>
         <div className="mt-4">
           <Oval
             visible={isLoading && !isSearched}
