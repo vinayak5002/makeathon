@@ -48,6 +48,8 @@ const SearchResult = ({ chatMessage }: SearchResultProps) => {
 
 			const data = await api.executeQuery(query);
 
+			console.log(data);
+
 			setExecResult(generateHtmlTable(data));
 
 			setIsExecLoading(false);

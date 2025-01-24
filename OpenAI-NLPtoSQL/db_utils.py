@@ -167,7 +167,21 @@ def execute_query(query,db_user='root',db_password='root'):
             return [], [], f"{num_rows_affected} no. of rows affected"
         
         else:
-            return [], [], "Unable to execute query"
+            cursor.execute(query)
+            
+            output = cursor.fetchall()
+            
+            if not output:
+                return [], [], ""
+            
+            column_names = [desc[0] for desc in cursor.description]
+            
+            formatted_result = [dict(zip(column_names, row)) for row in output]
+            
+            cursor.close()
+            connection.close()
+            
+            return formatted_result, column_names, "Success"
     
     except mysql.connector.Error as e:
         cursor.close()
