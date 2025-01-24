@@ -44,8 +44,9 @@ const SearchResult = ({ chatMessage }: SearchResultProps) => {
 			setIsExecLoading(true);
 
 			console.log("Fetching data...");
+			const query = chatMessage.type === QueryType.TEXT2SQL ? chatMessage.answer : chatMessage.question;
 
-			const data = await api.executeQuery(chatMessage.answer);
+			const data = await api.executeQuery(query);
 
 			setExecResult(generateHtmlTable(data));
 
@@ -90,7 +91,7 @@ const SearchResult = ({ chatMessage }: SearchResultProps) => {
 						)
 					}
 					<div className="flex flex-row">
-						<div className={`${chatMessage.type === QueryType.SQL2TEXT && "hidden"} p-2 bg-primary rounded-lg cursor-pointer mr-2`} onClick={toggleExecute}>
+						<div className={`p-2 bg-primary rounded-lg cursor-pointer ml-2 mr-2`} onClick={toggleExecute}>
 							<FaPlayCircle size={20} />
 						</div>
 						<div className={`${chatMessage.type === QueryType.SQL2TEXT && "hidden"} p-2 bg-primary rounded-lg cursor-pointer`} onClick={toggleInfo}>
@@ -99,7 +100,7 @@ const SearchResult = ({ chatMessage }: SearchResultProps) => {
 					</div>
 				</div>
 				<div>
-					<h2>Response:</h2>
+					<h1 className="" >Response:</h1>
 					{
 						chatMessage.type === QueryType.TEXT2SQL ?
 							<CodeSnippet snip={chatMessage.answer} /> :
@@ -110,7 +111,7 @@ const SearchResult = ({ chatMessage }: SearchResultProps) => {
 				{
 					isShowExec && (
 						<div className="">
-							<h2>Execution result:</h2>
+							<h1 className="mt-2">Execution result:</h1>
 							{
 								isExecLoading ?
 									<Oval
