@@ -18,10 +18,14 @@ secret_key = os.getenv("SECRET_KEY")
 cors_headers = os.getenv("CORS_HEADERS")
   
 app = Flask(__name__)  
-cors = CORS(app)  
+cors = CORS(app, resources={
+    r"*": {
+        "origins": "http://localhost:5173",  # Frontend origin for all routes
+        "supports_credentials": True  # Allow credentials globally
+    }
+})
 app.config['CORS_HEADERS'] = cors_headers
 app.config['SECRET_KEY'] = secret_key
-
   
 # Initialize Flask-Login  
 login_manager = LoginManager()  
@@ -51,7 +55,7 @@ def unauthorized():
 login_manager.unauthorized = unauthorized
 
 @app.route("/signup", methods=["POST"])
-@cross_origin()
+@cross_origin(supports_credentials=True)  
 def signup():
     data = request.get_json()
     username = data.get('username')
@@ -69,7 +73,7 @@ def signup():
 
   
 @app.route("/login", methods=["POST"])
-@cross_origin()
+@cross_origin(supports_credentials=True)  
 def login():
     data = request.get_json()
     username = data.get('username')
@@ -87,7 +91,7 @@ def login():
 
   
 @app.route("/logout")  
-@cross_origin()
+@cross_origin(supports_credentials=True)  
 @login_required  
 def logout():  
     logout_user()  
@@ -95,12 +99,12 @@ def logout():
 
 
 @app.route("/")
-@cross_origin()
+@cross_origin(supports_credentials=True)  
 def hello_name():
     return "Hello world"
 
 @app.route("/text-sql", methods=["GET"])  
-@cross_origin()  
+@cross_origin(supports_credentials=True)  
 @login_required  
 def text_sql():  
     text = request.args.get("text")  
@@ -125,7 +129,8 @@ def text_sql():
     return jsonify({"query": proposed_query_postprocessed})  
   
 @app.route("/execute-query", methods=["GET"])  
-@cross_origin()  
+# @cross_origin()  
+@cross_origin(supports_credentials=True)  
 @login_required  
 def exec_query():  
     query = request.args.get("query")  
@@ -143,7 +148,8 @@ def exec_query():
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500  
   
 @app.route("/sql-text", methods=["GET"])  
-@cross_origin()  
+# @cross_origin()  
+@cross_origin(supports_credentials=True)  
 @login_required  
 def sql_text():  
     user_input = request.args.get("query")  
