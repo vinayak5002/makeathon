@@ -110,7 +110,7 @@ const SearchResult = ({ chatMessage }: SearchResultProps) => {
 
 				{
 					isShowExec && (
-						<div className="">
+						<div className="overflow-x-auto whitespace-nowrap">
 							<h1 className="mt-2">Execution result:</h1>
 							{
 								isExecLoading ?
