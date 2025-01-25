@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import api from "../api/api";
 import { Oval } from "react-loader-spinner";
 import { generateHtmlTable } from "../utils/utils";
+import { toast } from "react-toastify";
 
 type SearchResultProps = {
 	chatMessage: ChatMessage;
@@ -35,6 +36,7 @@ const SearchResult = ({ chatMessage }: SearchResultProps) => {
 
 			console.log(data);
 		} catch (err) {
+			toast.error("Something went wrong")
 			console.log(err);
 		}
 	}
@@ -55,6 +57,9 @@ const SearchResult = ({ chatMessage }: SearchResultProps) => {
 			setIsExecLoading(false);
 		}
 		catch (err) {
+			toast.error("Unable to execute the query")
+			console.log("Execution Error");
+			setIsExecLoading(false);
 			console.log(err);
 		}
 	}

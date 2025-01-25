@@ -5,6 +5,7 @@ import { AppDispatch } from "../store/store";
 import { useDispatch } from "react-redux";
 import { setUserID } from "../store/user/userSlice";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const SignupPage: React.FC = () => {
   const [userId, setUserId] = useState<string>("");
@@ -27,10 +28,13 @@ const SignupPage: React.FC = () => {
       dispatch(setUserID(resp.data.userID));
 
       navigate("/");
+      toast.success("User signed up and logged in")
     } catch (error: any) {
-      if (error.response.status === 401) {
-        alert("Something went wrong");
-      }
+      console.log("Signup error", error)
+      toast.error(error.response.data.error);
+      // if (error.response.status === 401) {
+      //   // alert("Something went wrong");
+      // }
     }
   };
 

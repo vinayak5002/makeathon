@@ -5,6 +5,7 @@ import { AppDispatch } from "../store/store";
 import { useDispatch } from "react-redux";
 import { setUserID } from "../store/user/userSlice";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const LoginPage: React.FC = () => {
   const [userId, setUserId] = useState<string>("");
@@ -26,10 +27,13 @@ const LoginPage: React.FC = () => {
 
       dispatch(setUserID(resp.data.userID));
 
+      toast.success(`Welcome ${userId}`);
+
       navigate("/");
     } catch (error: any) {
       if (error.response.status === 401) {
-        alert("Invalid credentials");
+        // alert("Invalid credentials");
+        toast.error("Invalid credentials");
       }
     }
   };

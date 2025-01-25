@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChatMessage, QueryType } from "../types/types";
 import api from "../api/api";
-import { ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Oval } from "react-loader-spinner";
 import SearchResult from "../components/SearchResult";
@@ -50,6 +50,7 @@ const SearchPage = () => {
       setIsSearched(true);
       setQuery("");
     } catch (err) {
+      toast.error("Something went wrong")
       console.error(err);
     }
     setIsLoading(false);
@@ -89,18 +90,6 @@ const SearchPage = () => {
 
   return (
     <div className={` ${isSearched ? "flex-grow" : ""} flex flex-col items-center justify-between`}>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={1000}
-        hideProgressBar={true}
-        newestOnTop={true}
-        closeOnClick
-        draggable
-        draggablePercent={60}
-        rtl={false}
-        theme="dark"
-      />
-
       {chatMessages.length > 0 && (
         <div className="flex flex-col-reverse items-center w-[80%] flex-grow overflow-y-auto h-[500px] no-scrollbar">
           {chatMessages.map((chat, index) => (
