@@ -7,7 +7,11 @@ load_dotenv()  # Load environment variables from .env file
 
 def combine_prompts(fixed_sql_prompt, user_query):
     final_user_input = f"### A query to answer: {user_query}"
-    return fixed_sql_prompt + final_user_input
+    context_and_instructions = (
+    "\nInstructions for the model:\n"
+    "Your role is to only generate the SQL query based on the schema and the user query provided to you. Avoid adding any information except query. Avoid extra commentary, greetings, or unrelated information.\n\n"
+)
+    return fixed_sql_prompt + final_user_input + context_and_instructions 
 
 
 def send_to_openai(prompt):
