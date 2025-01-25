@@ -54,6 +54,8 @@ const SearchResult = ({ chatMessage }: SearchResultProps) => {
 
 			setExecResult(generateHtmlTable(data));
 
+			toast.success(data.message);			
+
 			setIsExecLoading(false);
 		}
 		catch (err) {
